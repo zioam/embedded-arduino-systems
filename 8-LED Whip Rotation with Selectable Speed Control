@@ -1,0 +1,89 @@
+/*
+ Rotating whip sequence for 8 LEDs connected from pin 6 to pin 13.
+
+ Speed control:
+  - 300 ms if pin 2 is HIGH
+  - 150 ms if pin 3 is HIGH
+  - 60  ms if pin 4 is HIGH
+  - 20  ms if pin 5 is HIGH
+  - Default: 500 ms if no pin is selected
+
+ After each full sequence, the program checks again for speed selection.
+*/
+
+// ----- Constants -----
+const int FIRST_LED = 6;
+const int LAST_LED  = 13;
+
+const int SPEED_PIN_1 = 2;
+const int SPEED_PIN_2 = 3;
+const int SPEED_PIN_3 = 4;
+const int SPEED_PIN_4 = 5;
+
+// ----- Global variable -----
+int delayTime = 500;   // Default delay
+
+// ----- Function Prototypes -----
+void readSpeed();
+
+// ----- Setup Function -----
+void setup() 
+{
+  // Configure speed selection pins as inputs
+  for (int pin = SPEED_PIN_1; pin <= SPEED_PIN_4; pin++) 
+  {
+    pinMode(pin, INPUT);
+  }
+
+  // Configure LED pins as outputs
+  for (int pin = FIRST_LED; pin <= LAST_LED; pin++) 
+  {
+    pinMode(pin, OUTPUT);
+  }
+}
+
+// ----- Main Loop -----
+void loop() 
+{
+  // Forward sequence (whip effect)
+  for (int led = FIRST_LED; led <= LAST_LED; led++) 
+  {
+    digitalWrite(led, HIGH);
+    delay(delayTime);
+    digitalWrite(led, LOW);
+    delay(delayTime);
+  }
+
+  // Backward sequence (return whip)
+  for (int led = LAST_LED; led >= FIRST_LED; led--) 
+  {
+    digitalWrite(led, HIGH);
+    delay(delayTime);
+    digitalWrite(led, LOW);
+    delay(delayTime);
+  }
+
+  // Update speed after completing a full sequence
+  readSpeed();
+}
+
+// ----- Reads speed selection from pins -----
+void readSpeed()
+{
+  /*
+    Checks which speed pin is active and assigns delay time.
+    Priority is given from pin 2 to pin 5.
+    If none are active, default speed is used.
+  */
+
+  if (digitalRead(SPEED_PIN_1) == HIGH)
+    delayTime = 300;
+  else if (digitalRead(SPEED_PIN_2) == HIGH)
+    delayTime = 150;
+  else if (digitalRead(SPEED_PIN_3) == HIGH)
+    delayTime = 60;
+  else if (digitalRead(SPEED_PIN_4) == HIGH)
+    delayTime = 20;
+  else
+    delayTime = 500;
+}
