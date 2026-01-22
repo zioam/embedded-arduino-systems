@@ -1,1 +1,52 @@
-// Definiciones de pines #define POTE A0 #define MOTOR 11 #define SEG_A 2 #define SEG_G 8 // Tabla de patrones para display de 7 segmentos (0-5) // Cada byte representa los segmentos: {a, b, c, d, e, f, g} const byte DIGITOS[6][7] = { {0, 1, 1, 1, 1, 1, 1}, // 0 {0, 0, 0, 0, 1, 1, 0}, // 1 {1, 0, 1, 1, 0, 1, 1}, // 2 {1, 0, 0, 1, 1, 1, 1}, // 3 {1, 1, 0, 0, 1, 1, 0}, // 4 {1, 1, 0, 1, 1, 0, 1} // 5 }; // Tabla de velocidades PWM del motor según voltaje const byte VELOCIDADES[6] = {13, 13, 64, 127, 191, 242}; // 5%, 5%, 25%, 50%, 75%, 95% int numero; void setup() { // Configura pines del display como salidas for (int i = SEG_A; i <= SEG_G; i++) { pinMode(i, OUTPUT); } pinMode(MOTOR, OUTPUT); Serial.begin(9600); } void loop() { // Lee el potenciómetro y mapea a voltaje (0-5) int lecturaAnalog = analogRead(POTE); int volt = map(lecturaAnalog, 0, 1023, 0, 5); // Asigna el número basado en el voltaje numero = volt; // Controla el motor según el voltaje analogWrite(MOTOR, VELOCIDADES[volt]); // Muestra el número en el display mostrarDigito(numero); // Imprime el valor para monitoreo Serial.println(numero); delay(50); // Pequeña pausa para estabilidad } // Función para mostrar un dígito en el display de 7 segmentos void mostrarDigito(int digito) { if (digito >= 0 && digito <= 5) { for (int i = 0; i < 7; i++) { digitalWrite(SEG_A + i, DIGITOS[digito][i]); } } }
+// Definiciones de pines
+#define POTE   A0
+#define MOTOR  11
+#define SEG_A  2
+#define SEG_G  8
+
+// Tabla de patrones para display de 7 segmentos (0-5)
+// {a, b, c, d, e, f, g}
+const byte DIGITOS[6][7] = {
+  {0, 1, 1, 1, 1, 1, 1},  // 0
+  {0, 0, 0, 0, 1, 1, 0},  // 1
+  {1, 0, 1, 1, 0, 1, 1},  // 2
+  {1, 0, 0, 1, 1, 1, 1},  // 3
+  {1, 1, 0, 0, 1, 1, 0},  // 4
+  {1, 1, 0, 1, 1, 0, 1}   // 5
+};
+
+// Velocidades PWM del motor
+const byte VELOCIDADES[6] = {13, 13, 64, 127, 191, 242};
+
+int numero;
+
+void setup() {
+  for (int i = SEG_A; i <= SEG_G; i++) {
+    pinMode(i, OUTPUT);
+  }
+
+  pinMode(MOTOR, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int lecturaAnalog = analogRead(POTE);
+  int volt = map(lecturaAnalog, 0, 1023, 0, 5);
+
+  numero = volt;
+
+  analogWrite(MOTOR, VELOCIDADES[volt]);
+  mostrarDigito(numero);
+
+  Serial.println(numero);
+
+  delay(50);
+}
+
+void mostrarDigito(int digito) {
+  if (digito >= 0 && digito <= 5) {
+    for (int i = 0; i < 7; i++) {
+      digitalWrite(SEG_A + i, DIGITOS[digito][i]);
+    }
+  }
+}
